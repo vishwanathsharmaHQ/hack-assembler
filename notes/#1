@@ -1,0 +1,66 @@
+Lets attempt to think from first principles. 
+
+We have a 16-bit CPU that can sequentially take in 16 bit binary numbers and 
+process them one at a time. 
+
+Something like 1110001010101001
+
+Now in this one binary number need to be encoded a bunch of instructions and 
+values in agreement with the architecture of the CPU itself. The contract for
+how a binary number needs to be loaded with instructions should be something 
+that the CPU's API provides.
+
+So based on the hardware implementation of the CPU architecture and the 
+decisions taken for the same, we should have a spec.
+
+The hack instruction set has two instructions. A and C. 
+
+The A instruction is specified like so - 
+
+0 v v v v v v v v v v v v v v v 
+
+So bit 15 being 0 specifies to the computer that this is an A instruction. Bits
+14 to 0 encode the 15 bit instruction to be loaded into the A register.	
+
+Now keep in mind that calling this combination of bits an A instruction is 
+arbitrary. We can just as well call this a D or a J or a DONKEY instruction.
+
+The other instruction is a C instruction specified like so - 
+
+1 1 1 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3 
+
+The leftmost bit being 1 tells the machine that this is a C instruction. 
+The next two bits are ignored. It doesn't matter what they are, they are not
+wired to anything. But i think it's just convention to keep them 1.
+
+The next bit indicates A register when 0 and M register when 1. 
+
+c1 - c6 are ALU control bits and d1 - d3 signify the destination for where to
+store the bits. j1 - j3 signify whether or not to jump and under what condition
+based on the output from the ALU. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
