@@ -75,7 +75,7 @@ And so to overcome this limitation we need two steps. To take the same example
 of wanting to set RAM[100] = 5
 
 @5 # Load the value 5 into register A
-D=5 # Store the value from register A into the D register
+D=A # Store the value from register A into the D register
 @100 # Load the value 100 into register A
 M=D # Set the value of M to the value stored in register D 
 
@@ -85,6 +85,10 @@ hardware implementation of the CPU. The A instruction directly stores a
 value in the A register without any questions. It has dedicated circuitry
 for this. If you use an A instruction denoted by 0vvvvvvvvvvvvvvv, then the 
 15 bits are stored straight into the register. 
+
+For this reason we use the A register also as a pointer, as we can store
+addresses that we want to jump to, and we use the D register as a general
+purpose data storage register.
 
 We could introduce D instructions as well. But to be able to load the 16-bit
 binary with one additinal instruction would require a change in the hardware
@@ -97,33 +101,3 @@ Maybe, maybe not. I don't know. And that is not the question we are concerned
 with at the moment. We have a contract given to us by the hardware, and we 
 are implementing the assembly. We are not concerned with redesigning the 
 hardware.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
