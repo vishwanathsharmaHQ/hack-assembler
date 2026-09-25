@@ -1,1 +1,112 @@
+Now that we understand the basic contract for how to write a single instruction
+we need to start thinking about instructions as they occur sequentially. The 
+goal of a computer program is to be able to execute arbitrary code to be able
+to solve various problems; not to load a single instruction. 
 
+Another important concept to understand here is that of the program counter
+which is another piece of clever circuitry in the CPU.
+
+By default the PC starts at 0 and increments by 1 every clock cycle. It has 
+really only 3 modes of behaviour 
+
+PC = PC + 1 # every clock cycle
+PC = A #If a C instruction specifies a jump, then PC is set to whatever address
+is in register A
+PC = 0 # if the program is reset 
+
+The program counter is simply a 16-bit register like the A and D but is wired
+up for this particular use case i.e always keeping track of where the program
+is supposed to go next. And PC , unlike registers A and D is always active. It 
+will always, on every clock cycle, do one of the above 3 things. 
+
+A fun to think about example with this CPU architecture that brings it home is
+to think about the vided game consoles that worked with cartridges. When you 
+inserted a cartridge, you would press the reset button on the console. This is 
+because those video game consoles had a similar architecture, and the game
+cartridges were pieces of ROM that got executed as soon as the device booted,
+loading the instructions from whatever the cartridge contained, executing
+instructions one after the other.
+
+To write an assembler for a CPU, you need to understand the raw instructions, 
+not write them, not even be able to read them, but be able to parse them, given
+time.
+
+Let's look at the following binary - 
+
+0000000000000101
+1110110000010000
+0000000000000111
+1110001100000110
+1110001110010000
+0000000000000010
+1110101010000111
+0000000000000111
+1110101010000111
+
+
+Now bear with me, you don't need to be able to read this, but just once, before
+starting to write an assembler, see if you can parse this, sit with a pen and
+paper and try. 
+
+Let's look at each instruction - 
+
+0000000000000101
+
+This is an A instruction, denoted by the first bit being 0.
+
+This is simply the number 5 in binary - 101. So the A register gets the number
+5 stored into it. The next instruction - 
+
+1110110000010000
+
+This is a C instruction, denoted by the 15th bit being 1. 
+
+Let's keep this here for reference -
+
+1 1 1 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3 
+
+The next two bits are ignored by convention. 
+
+The next bit denotes whether to load the value from register A or M (0 or 1)
+So in this case we are loading from register A.
+
+The next 6 bits are control bits, c1-c6 = 110000
+
+Now remember that the API for this is given to us by the CPU in the form of a
+table. The full table will be added in a different file. This combination, 
+
+of a = 0 and c1-c6 = 110000 maps to the instruction - A, meaning the ALU is 
+simply instructed to pass throught the value sitting in the A register without
+doing any computation on it.
+
+Of the destination bits, only the bit for the D register is a 1, so store the
+output in D. Jump bits are all 0 so no op.
+
+So, what do we have so far?
+
+@5 # Store the value 5 in the A register
+D=A #Store the value of register A into register D, in this case 5
+
+Alright, moving on...
+
+0000000000000111
+
+Again an A instruction, loading the value 7, which is 111 in binary into 
+register A. 
+
+1110001100000110
+
+C instruction, 001100 = computation = output D. 	
+
+The jump bits are 110 which maps to the condition 'jump if ALU output <=0'
+
+Here we introduce a branch, and the jump instruction being true takes us to 
+whatever address is in register A(PC = A), which in this instance is 7.
+So here if the condition is met we jump to instruction 7 and if the condition
+is not fulfilled, then we just continue executing the instructions i.e
+ PC = PC + 1.
+
+You can parse the rest of it similarly. It is obvious in an instant how
+cumbersome this is. This is where the assembler comes in. To give us a way to 
+represent these instructions symbolically to be able to make sense of it in a 
+human way. 
