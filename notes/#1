@@ -39,6 +39,69 @@ c1 - c6 are ALU control bits and d1 - d3 signify the destination for where to
 store the bits. j1 - j3 signify whether or not to jump and under what condition
 based on the output from the ALU. 
 
+# Two registers and an alias
+
+It is also important at this point to understand how the the registers work
+and how to interact with them and to also point out how the design and 
+limitations of the CPU dictate this. 
+
+We have two registers - A and D. And we have an alias M which is simply
+RAM[A] so M points to the RAM cell whose address is A, meaning held in the 
+A register at the point when M is in use.
+
+A natural thing to wonder is why is this needed at all? Why do we have an 
+abstraction at this point where we want to keep things readable and simple?
+Why not just address RAM[A] as RAM[A]?
+
+This has to do with the limitations of the CPU architecture. We are working 
+with a 16-bit CPU and instructions need to be encoded in these 16 bits. 
+
+Now suppose you want to load the value 5 into RAM[100].
+
+Syntactically, RAM[100] = 5
+
+Now look at the contract for the C instruction which allows us to. The first
+bit is needed to tell us the type of the instruction. Bits two and three are
+ignored, and bit four indicates whether to use the A or M register for the 
+ALU operation. The six control bits c1-c6 specify which ALU operation to 
+perform, the destination bits d1-d3 specify which destinations to write the
+result to and the j bits specify whether or not to jump to a different address
+location afterwards. 
+
+So there is no place to smuggle in another constant like 5, that would require
+another 15 bits! We'd need atleast a 31 bit architecture.
+
+And so to overcome this limitation we need two steps. To take the same example
+of wanting to set RAM[100] = 5
+
+@5 # Load the value 5 into register A
+D=5 # Store the value from register A into the D register
+@100 # Load the value 100 into register A
+M=D # Set the value of M to the value stored in register D 
+
+Now one might think why can't we write an arbitrary constant to the D 
+register like we do for the A register. This has to do with the actual 
+hardware implementation of the CPU. The A instruction directly stores a 
+value in the A register without any questions. It has dedicated circuitry
+for this. If you use an A instruction denoted by 0vvvvvvvvvvvvvvv, then the 
+15 bits are stored straight into the register. 
+
+We could introduce D instructions as well. But to be able to load the 16-bit
+binary with one additinal instruction would require a change in the hardware
+implementation, to have circuitry to store arbitrary constants straight into 
+register D. Also keep in mind that we only have 16 bits, so using another bit
+for register specification (which we will need if moving from two to three 
+instructions) means that the arbitrary constants can now only be 14 bits in 
+length, so we will be trading off our max num size for this. Is it worth it?
+Maybe, maybe not. I don't know. And that is not the question we are concerned
+with at the moment. We have a contract given to us by the hardware, and we 
+are implementing the assembly. We are not concerned with redesigning the 
+hardware.
+
+
+
+
+
 
 
 
